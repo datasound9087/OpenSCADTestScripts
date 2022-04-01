@@ -11,7 +11,10 @@ $fn = 32;
 // 0.5 == 25% overlap
 // 0.25 == 12.5% overlap
 // 0 == 0% overlap (touching)
-genTreeUnion(512, 0.25);
+
+//genTreeUnion(512, 0.25);
+//genTreeDiff(512, 0.25);
+genTreeInt2(512, 0.25);
 
 module genTreeUnion(radius, offset)
 {
@@ -26,6 +29,11 @@ module genTreeDiff(radius, offset)
 module genTreeInt(radius, offset)
 {
     genTreeIntersectionImpl(radius, 0, 0, 0, offset);
+}
+
+module genTreeInt2(radius, offset)
+{
+    genTreeIntersectionImpl2(radius, 0, 0, 0, offset);
 }
 
 module genTreeUnionImpl(radius, x, z, childDirection, offset)
@@ -121,6 +129,11 @@ module genTreeIntersectionImpl(radius, x, z, childDirection, offset)
             { 
                 sphereAt(x, z, radius);
                 genTreeIntersectionImpl(newRadius, x, child1Z, 0, offset);
+            }
+            
+            intersection()
+            {
+                sphereAt(x, z, radius);
                 genTreeIntersectionImpl(newRadius, x, child2Z, 0, offset);
             }
         }
@@ -133,7 +146,84 @@ module genTreeIntersectionImpl(radius, x, z, childDirection, offset)
             {
                 sphereAt(x, z, radius);
                 genTreeIntersectionImpl(newRadius, child1X, z, 1, offset);
+            }
+            
+            intersection()
+            {
+                sphereAt(x, z, radius);
                 genTreeIntersectionImpl(newRadius, child2X, z, 1, offset);
+            }
+        }
+    }
+}
+
+module genTreeIntersectionImpl2(radius, x, z, childDirection, offset)
+{
+    if (radius == 4)
+    {
+        newRadius = radius / 2;
+        scaledOffset = offset * newRadius;
+        if (childDirection == 1)
+        {
+            child1Z = (z - radius - newRadius) + scaledOffset;
+            child2Z = (z + radius + newRadius) - scaledOffset;
+            
+            intersection()
+            { 
+                sphereAt(x, z, radius);
+                sphereAt(x, child1Z, newRadius);
+            }
+            
+            intersection()
+            {
+                sphereAt(x, z, radius);
+                sphereAt(x, child2Z, newRadius);
+            }
+        }
+        else 
+        {
+            child1X = (x - radius - newRadius) + scaledOffset;
+            child2X = (x + radius + newRadius) - scaledOffset;
+            
+            intersection()
+            {
+                sphereAt(x, z, radius);
+                sphereAt(x, child1X, newRadius);
+            }
+            
+            intersection()
+            {
+                sphereAt(x, z, radius);
+                sphereAt(x, child2X, newRadius);
+            }
+        }
+    }
+    else
+    {
+        newRadius = radius / 2;
+        scaledOffset = offset * newRadius;
+        if (childDirection == 1)
+        {
+            child1Z = (z - radius - newRadius) + scaledOffset;
+            child2Z = (z + radius + newRadius) - scaledOffset;
+            
+            union()
+            { 
+                sphereAt(x, z, radius);
+                genTreeIntersectionImpl2(newRadius, x, child1Z, 0, offset);
+                genTreeIntersectionImpl2(newRadius, x, child2Z, 0, offset);
+            }
+        }
+        else
+        {
+            child1X = (x - radius - newRadius) + scaledOffset;
+            child2X = (x + radius + newRadius) - scaledOffset;
+            
+            union()
+            {
+                sphereAt(x, z, radius);
+                genTreeIntersectionImpl2(newRadius, child1X, z, 1, offset);
+                genTreeIntersectionImpl2(newRadius, child2X, z, 1, offset);
             }
         }
     }
