@@ -1,6 +1,17 @@
 $fn = 32;
 
-genTreeUnion(512, 0);
+// As a rule radius is always specified in powers of 2
+// This allows correct sphere scaling in oder to make a correct tree with no overlaps
+// This also means that total sphere count is always radius - 1
+// eg for a root radius of 512 -> 511 spheres generated
+
+// offset between 0 and 1 (higher values can cause difference levels to overlap)
+// Scaled per level so that we always get an even amount of overlap regardless of sphere size
+// 1 == 50% overlap
+// 0.5 == 25% overlap
+// 0.25 == 12.5% overlap
+// 0 == 0% overlap (touching)
+genTreeUnion(512, 0.25);
 
 module genTreeUnion(radius, offset)
 {
@@ -26,10 +37,11 @@ module genTreeUnionImpl(radius, x, z, childDirection, offset)
     else
     {
         newRadius = radius / 2;
+        scaledOffset = offset * newRadius;
         if (childDirection == 1)
         {
-            child1Z = (z - radius - newRadius) + offset;
-            child2Z = (z + radius + newRadius) - offset;
+            child1Z = (z - radius - newRadius) + scaledOffset;
+            child2Z = (z + radius + newRadius) - scaledOffset;
             
             union()
             { 
@@ -40,8 +52,8 @@ module genTreeUnionImpl(radius, x, z, childDirection, offset)
         }
         else
         {
-            child1X = (x - radius - newRadius) + offset;
-            child2X = (x + radius + newRadius) - offset;
+            child1X = (x - radius - newRadius) + scaledOffset;
+            child2X = (x + radius + newRadius) - scaledOffset;
             
             union()
             {
@@ -62,10 +74,11 @@ module genTreeDifferenceImpl(radius, x, z, childDirection, offset)
     else
     {
         newRadius = radius / 2;
+        scaledOffset = offset * newRadius;
         if (childDirection == 1)
         {
-            child1Z = (z - radius - newRadius) + offset;
-            child2Z = (z + radius + newRadius) - offset;
+            child1Z = (z - radius - newRadius) + scaledOffset;
+            child2Z = (z + radius + newRadius) - scaledOffset;
             
             difference()
             { 
@@ -76,8 +89,8 @@ module genTreeDifferenceImpl(radius, x, z, childDirection, offset)
         }
         else
         {
-            child1X = (x - radius - newRadius) + offset;
-            child2X = (x + radius + newRadius) - offset;
+            child1X = (x - radius - newRadius) + scaledOffset;
+            child2X = (x + radius + newRadius) - scaledOffset;
             
             difference()
             {
@@ -98,10 +111,11 @@ module genTreeIntersectionImpl(radius, x, z, childDirection, offset)
     else
     {
         newRadius = radius / 2;
+        scaledOffset = offset * newRadius;
         if (childDirection == 1)
         {
-            child1Z = (z - radius - newRadius) + offset;
-            child2Z = (z + radius + newRadius) - offset;
+            child1Z = (z - radius - newRadius) + scaledOffset;
+            child2Z = (z + radius + newRadius) - scaledOffset;
             
             intersection()
             { 
@@ -112,8 +126,8 @@ module genTreeIntersectionImpl(radius, x, z, childDirection, offset)
         }
         else
         {
-            child1X = (x - radius - newRadius) + offset;
-            child2X = (x + radius + newRadius) - offset;
+            child1X = (x - radius - newRadius) + scaledOffset;
+            child2X = (x + radius + newRadius) - scaledOffset;
             
             intersection()
             {
