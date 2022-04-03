@@ -13,8 +13,8 @@ $fn = 32;
 // 0 == 0% overlap (touching)
 
 //genTreeUnion(512, 0.25);
-//genTreeDiff(512, 0.25);
-genTreeInt2(512, 0.25);
+//genTreeDiff(4, 0.25);
+genTreeInt2(16, 0.25);
 
 module genTreeUnion(radius, offset)
 {
@@ -54,7 +54,8 @@ module genTreeUnionImpl(radius, x, z, childDirection, offset)
             union()
             { 
                 sphereAt(x, z, radius);
-                genTreeUnionImpl(newRadius, x, child1Z, 0, offset);
+                genTreeUnionImpl(newRadius, x, child1Z, 0
+                , offset);
                 genTreeUnionImpl(newRadius, x, child2Z, 0, offset);
             }
         }
@@ -188,13 +189,13 @@ module genTreeIntersectionImpl2(radius, x, z, childDirection, offset)
             intersection()
             {
                 sphereAt(x, z, radius);
-                sphereAt(x, child1X, newRadius);
+                sphereAt(child1X, z, newRadius);
             }
             
             intersection()
             {
                 sphereAt(x, z, radius);
-                sphereAt(x, child2X, newRadius);
+                sphereAt(child2X, z, newRadius);
             }
         }
     }
